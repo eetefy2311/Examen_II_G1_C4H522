@@ -9,4 +9,17 @@ execute:
   warning: false            
   message: false 
 ---
+## 1. Cargar la data
+```{r, warning=FALSE, message=FALSE}
+library(here)
 
+moras <- read.table(
+  here("data", "moras.txt"),
+  header = TRUE,
+  sep = ","
+)
+
+View(moras)
+```
+
+## 2. 
