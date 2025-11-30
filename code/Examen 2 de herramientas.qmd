@@ -1,5 +1,5 @@
 ---
-title: "Examen_I_G1_C4H522"
+title: "Examen_II_G1_C4H522"
 format:
   html:
     embed-resources: true   
@@ -9,6 +9,8 @@ execute:
   warning: false            
   message: false 
 ---
+
+Link al repositorio: <https://github.com/eetefy2311/Examen_II_G1_C4H522>
 
 ## 1. Cargar la data
 ```{r, warning=FALSE, message=FALSE}
@@ -528,3 +530,62 @@ A medida que los ingresos aumentan (Q3 y especialmente Q4), el porcentaje de mor
 En conjunto, este patrón refleja una relación razonable entre nivel salarial y morosidad: los grupos con mayores ingresos tienden a presentar mejores condiciones para cumplir sus obligaciones de aseguramiento, mientras que los niveles más bajos concentran las dificultades.
 
 ## 10. Árbol de decisión
+
+Primero, transformamos las variables numéricas en categorías, para después generar el árbol de decisión. Además, se tomaron abreviaturas del tipo de aseguramiento para mejor legibilidad. 
+
+```{r, warning=FALSE, message=FALSE}
+
+library(forcats)
+library(rpart)
+library(rpart.plot)
+
+moras.arbol <- moras %>%
+  mutate(
+    rango.edad = cut(
+      EDAD,
+      breaks = c(0, 25, 35, 45, 55, Inf),
+      right  = FALSE,
+      labels = c("0–24", "25–34", "35–44", "45–54", "55+")
+    ),
+    rango.salario = cut(
+      SALARIO,
+      breaks = cuartiles_salario,
+      include.lowest = TRUE,
+      labels = c("Q1", "Q2", "Q3", "Q4")
+    ),
+    TIPO_ASEGURAMIENTO = fct_recode(
+      TIPO_ASEGURAMIENTO,
+      "AS." = "ASALARIADO",
+      "VOL." = "ASEGURADO VOLUNTARIO",
+      "CONV.VOL." = "CONVENIOS ESPECIALES DE ASEGURADOS VOLUNTARIOS",
+      "CONV.INDEP." = "CONVENIOS ESPECIALES DE TRABAJADORES INDEPENDENTES",
+      "PEN." = "PENSIONADOS EN SU PROPIO SISTEMA",
+      "TRAB.INDEP." = "TRABAJADOR INDEPENDIENTE"
+    ),
+    INDICADOR_MOROSO = factor(INDICADOR_MOROSO,
+                              levels = c("NO", "SI"))
+  ) %>%
+  select(
+    INDICADOR_MOROSO,
+    SEXO,
+    TIPO_ASEGURAMIENTO,
+    SECTOR,
+    INDICADOR_ACTIVO,
+    INDICADOR.EXTRANJERO,
+    rango.edad,
+    rango.salario
+  )
+
+tree <- rpart(INDICADOR_MOROSO ~ ., data = moras.arbol)
+rpart.plot(tree)
+
+```
+El árbol de decisión permite identificar cuáles características de las personas están más relacionadas con la morosidad. Al analizar el modelo, lo primero que se observa es que el factor que más influye en que una persona sea morosa o no es el tipo de aseguramiento. Desde el inicio, el árbol divide la población en distintos grupos según esta variable, porque algunos tipos de aseguramiento concentran un nivel de morosidad bastante mayor que otros. En ciertos esquemas, la mayoría de las personas se mantiene al día, mientras que en otros la morosidad es considerablemente más frecuente. Esto convierte al tipo de aseguramiento en el criterio principal para distinguir entre clientes de bajo y alto riesgo.
+
+Una vez separados esos grupos, el árbol muestra que el segundo elemento relevante es si la persona es extranjera o no. Entre los tipos de aseguramiento que ya presentaban mayores niveles de morosidad, los extranjeros suelen concentrar un riesgo todavía mayor. Esto indica que la nacionalidad agrega un nivel adicional de vulnerabilidad dentro de los grupos que ya eran más propensos al atraso.
+
+Después de esto, el modelo introduce el rango salarial como otro factor capaz de diferenciar niveles de riesgo. No todos los niveles de ingreso se comportan igual: en algunos cuartiles la morosidad es más habitual, mientras que en otros tiende a disminuir. Esto sugiere que, además del tipo de aseguramiento y de la nacionalidad, la capacidad económica también ayuda a explicar por qué algunas personas se atrasan más que otras.
+
+Finalmente, en un grupo más pequeño y específico, el árbol incluye el sexo como una variable que ajusta ligeramente la probabilidad de morosidad, aunque su efecto es mucho más débil que el de las variables anteriores. Esto significa que, aunque el sexo puede marcar cierta diferencia en casos muy puntuales, no es un factor central para entender el riesgo de atraso.
+
+En conjunto, el árbol revela que la morosidad no se distribuye de manera uniforme en la población, sino que está fuertemente asociada primero al tipo de aseguramiento, luego a la nacionalidad y después al nivel salarial. 
