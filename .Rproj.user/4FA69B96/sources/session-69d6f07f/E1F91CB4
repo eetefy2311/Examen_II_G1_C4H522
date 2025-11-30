@@ -3,24 +3,24 @@
     "path": "C:/Users/Usuario/OneDrive/Escritorio/Examen 2 herra/Examen individual/code/Examen 2 de herramientas.qmd",
     "project_path": "code/Examen 2 de herramientas.qmd",
     "type": "quarto_markdown",
-    "hash": "2793681044",
+    "hash": "0",
     "contents": "",
-    "dirty": false,
+    "dirty": true,
     "created": 1764525724535.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "24,6",
-        "scrollLine": "6"
+        "cursorPosition": "89,24",
+        "scrollLine": "86"
     },
     "folds": "",
-    "lastKnownWriteTime": 1764527346,
+    "lastKnownWriteTime": 1764527395,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1764527346975,
+    "last_content_update": 1764533924082,
     "read_only": false,
     "read_only_alternatives": []
 }

@@ -12,6 +12,7 @@ execute:
 ## 1. Cargar la data
 ```{r, warning=FALSE, message=FALSE}
 library(here)
+library(dplyr)
 
 moras <- read.table(
   here("data", "moras.txt"),

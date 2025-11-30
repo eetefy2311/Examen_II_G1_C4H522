@@ -9,9 +9,17 @@ execute:
   warning: false            
   message: false 
 ---
+
 ## 1. Cargar la data
 ```{r, warning=FALSE, message=FALSE}
 library(here)
+library(dplyr)
+
+data.original<- read.table(
+  here("data", "moras.txt"),
+  header = TRUE,
+  sep = ","
+)
 
 moras <- read.table(
   here("data", "moras.txt"),
@@ -22,4 +30,66 @@ moras <- read.table(
 View(moras)
 ```
 
-## 2. 
+## 2. Resumen de 5 números
+```{r, warning=FALSE, message=FALSE}
+
+#install.packages("modeest")
+library(modeest)
+library(stringr)
+
+moras <- moras %>% 
+  mutate(
+    SALARIO = SALARIO %>% 
+      str_replace(",", ".") %>% 
+      as.numeric()
+  )
+
+resumen <- moras %>% 
+  summarise(
+    moda.salario = mfv(SALARIO, na.rm = TRUE),
+    prom.salario = mean(SALARIO, na.rm = TRUE),
+    mediana.salario = median(SALARIO, na.rm = TRUE),
+    desv.salario = sd(SALARIO, na.rm = TRUE),
+    min.salario = min(SALARIO, na.rm = TRUE),
+    max.salario = max(SALARIO, na.rm = TRUE),
+    moda.edad = mfv(EDAD, na.rm = TRUE),
+    prom.edad = mean(EDAD, na.rm = TRUE),
+    mediana.edad = median(EDAD, na.rm = TRUE),
+    desv.edad = sd(EDAD, na.rm = TRUE),
+    min.edad = min(EDAD, na.rm = TRUE),
+    max.edad = max(EDAD, na.rm = TRUE)
+  )
+
+resumen
+
+str(moras)
+```
+## 3. Valores atípicos
+
+```{r}
+prom.salario <- mean(moras$SALARIO, na.rm = TRUE)
+desv.salario <- sd(moras$SALARIO, na.rm = TRUE)
+
+prom.edad <- mean(moras$EDAD, na.rm = TRUE)
+desv.edad <- sd(moras$EDAD, na.rm = TRUE)
+
+moras <- moras %>% 
+  mutate(
+    Z.Score.Salario = (SALARIO-prom.salario)/desv.salario,
+    Atípico.salario = ifelse(Z.Score.Salario > 1.96, "Atípico", "No atípico"),
+    Z.Score.Edad = (EDAD-prom.edad)/desv.edad,
+    Atípico.edad = ifelse(Z.Score.Edad > 1.96, "Atípico", "No atípico")
+  )
+
+moras %>% 
+  select(Z.Score.Salario, Atípico.salario, Z.Score.Edad, Atípico.edad)
+```
+
+## 4. Porcentaje de valores faltantes
+```{r}
+porc.na <- data.original %>% 
+  summarise(across(everything(), ~ mean(is.na(.))*100))
+
+porc.na
+```
+
