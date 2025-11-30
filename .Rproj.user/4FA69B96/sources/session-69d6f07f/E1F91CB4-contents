@@ -1,5 +1,12 @@
 ---
-title: "Examen 2 de herramientas"
-format: html
+title: "Examen_I_G1_C4H522"
+format:
+  html:
+    embed-resources: true   
+    code-fold: false        
+execute:
+  echo: true                
+  warning: false            
+  message: false 
 ---
 
