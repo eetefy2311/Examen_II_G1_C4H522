@@ -229,4 +229,99 @@ moras %>%
   ) +
   theme_void()
 ```
+## 7. Gráficos de variables categóricas usando porcentajes
+
+```{r}
+
+#Porcentaje de morosidad por sexo
+moras %>%
+  group_by(SEXO) %>%
+  summarise(
+    porcentaje.moroso = mean(INDICADOR_MOROSO == "SI", na.rm = TRUE) * 100
+  ) %>%
+  ggplot(aes(x = SEXO, y = porcentaje.moroso)) +
+  geom_col(fill = "#FADADD") +
+  labs(
+    title = "Porcentaje de morosidad por sexo",
+    x = "Sexo",
+    y = "% de personas en estado de morosidad"
+  ) +
+  theme_minimal()
+
+#Porcentaje de morosidad por tipo de aseguramiento
+moras %>%
+  group_by(TIPO_ASEGURAMIENTO) %>%
+  summarise(
+    porcentaje.moroso = mean(INDICADOR_MOROSO == "SI", na.rm = TRUE) * 100
+  ) %>%
+  ggplot(aes(x = porcentaje.moroso, y = TIPO_ASEGURAMIENTO)) +
+  geom_col(fill = "#FF9AA2") +
+  labs(
+    title = "Porcentaje de morosidad por tipo de aseguramiento",
+    x = "% de personas en estado de morosidad",
+    y = "Tipo de aseguramiento"
+  ) +
+  theme_minimal()
+
+#Porcentaje de morosidad por indicador moroso
+moras %>% 
+  count(INDICADOR_MOROSO) %>% 
+  mutate(
+    prop  = n / sum(n),
+    label = paste0(round(prop * 100, 1), "%")
+  ) %>%
+  ggplot(aes(x = "", y = prop, fill = INDICADOR_MOROSO)) +
+  geom_col(color = "white") +
+  geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 5) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(
+    values = c("NO" = "#FADADD", "SI" = "#C2185B"),
+    name   = "Moroso"
+  ) +
+  labs(title = "Porcentaje de morosos vs no morosos") +
+  theme_void() 
+
+#Porcentaje de morosidad por indicador activo
+moras %>% 
+  count(INDICADOR_ACTIVO) %>% 
+  mutate(
+    prop  = n / sum(n),
+    label = paste0(round(prop * 100, 1), "%")
+  ) %>%
+  ggplot(aes(x = "", y = prop, fill = INDICADOR_ACTIVO)) +
+  geom_col(color = "white") +
+  geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 5) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(
+    values = c("NO" = "#FFB3C6", "SI" = "#9B59B6"),
+    name   = "Activo"
+  ) +
+  labs(title = "Porcentaje de individuos activos vs inactivos") +
+  theme_void()
+
+#Porcentaje de morosidad por indicador extranjero
+moras %>% 
+  count(INDICADOR.EXTRANJERO) %>% 
+  mutate(
+    prop  = n / sum(n),
+    label = paste0(round(prop * 100, 1), "%")
+  ) %>%
+  ggplot(aes(x = "", y = prop, fill = INDICADOR.EXTRANJERO)) +
+  geom_col(color = "white") +
+  geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 5) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(
+    values = c("NO" = "#F7C6D0", "SI" = "#E91E63"),
+    name   = "Extranjero"
+  ) +
+  labs(title = "Porcentaje de nacionales vs extranjeros") +
+  theme_void() 
+
+```
 
