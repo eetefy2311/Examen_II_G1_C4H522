@@ -31,6 +31,11 @@ View(moras)
 ```
 
 ## 2. Resumen de 5 números
+Para encontrar la moda, se usó la librería *modeest*, la cual se implementó de acuerdo a lo establecido con la fuente <https://rpubs.com/Daniel21040506/834940>. 
+
+Además, de esto, a la hora de subir la data se cambió la coma a un punto, ya que estaba representando problemas con algunos cálculos. 
+
+De esta manera, lo que se presenta a continuación es equivalente a lo trabajado en el archivo excel.
 ```{r, warning=FALSE, message=FALSE}
 
 #install.packages("modeest")
@@ -62,9 +67,13 @@ resumen <- moras %>%
 
 resumen
 
-str(moras)
+#str(moras)
 ```
 ## 3. Valores atípicos
+
+Para esta sección, se crearon las nuevas columnas en el dataFrame moras, y para mostar el resultado se muestran únicamente las columnas nuevas.
+
+Al final se muestran los primeros 15 datos.
 
 ```{r, warning=FALSE, message=FALSE}
 prom.salario <- mean(moras$SALARIO, na.rm = TRUE)
@@ -82,10 +91,14 @@ moras <- moras %>%
   )
 
 moras %>% 
-  select(Z.Score.Salario, Atípico.salario, Z.Score.Edad, Atípico.edad)
+  select(Z.Score.Salario, Atípico.salario, Z.Score.Edad, Atípico.edad) %>% 
+  head(15)
 ```
 
 ## 4. Porcentaje de valores faltantes
+
+Para esta sección, aplicamos el proceso para todas las columnas del dataFrame, para observar cuales tienen valores faltantes. 
+
 ```{r, warning=FALSE, message=FALSE}
 porc.na <- data.original %>% 
   summarise(across(everything(), ~ mean(is.na(.))*100))
@@ -94,6 +107,11 @@ porc.na
 ```
 
 ## 5. Imputar valores faltantes
+
+Para imputar los datos, en caso de que se tratara de una variable categórica (Tipo de aseguramiento) se utilizó la moda, y en el caso de variables numércias se utilizó la mediana en caso de presencia de outliers. 
+
+Al final, se hace una comprobación de que no quedaron valores faltantes, por lo que se imputaron todos los mismos. 
+
 ```{r, warning=FALSE, message=FALSE}
 #Para variables numericas
 moras <- moras %>%
@@ -134,6 +152,8 @@ porc.na.moras
 
 ## 6. Gráficos de cantidad de individuos por categoría
 
+**Primer gráfico**. Cantidad de individuos por sexo
+
 ```{r, warning=FALSE, message=FALSE}
 library(ggplot2)
 
@@ -145,7 +165,12 @@ moras %>%
        x = "Sexo", 
        y = "Cantidad") +
     theme_minimal()
+```
 
+El conjunto de datos presenta una mayor participación masculina dentro de la población analizada. Se observa que el grupo de hombres supera ampliamente al de mujeres, con una diferencia cercana a las mil personas. Esto sugiere que, al menos dentro de este registro específico, la afiliación o presencia en el sistema evaluado es mayor entre hombres que entre mujeres. Este desequilibrio podría influir en otros indicadores, como la distribución del tipo de aseguramiento o la morosidad, por lo que conviene tenerlo presente en el análisis posterior.
+
+**Segundo gráfico**. Cantidad de individuos por tipo de aseguramiento
+```{r, warning=FALSE, message=FALSE}
 #Individuos por tipo de aseguramiento. Para mayor legibilidad, se invirtiron los ejes de manera que se observen bien los nombres del tipo de aseguramiento
 
 moras %>% 
@@ -156,7 +181,13 @@ moras %>%
        x = "Tipo de aseguramiento",
        y = "Cantidad") +
   theme_minimal()
+```
 
+El tipo de aseguramiento dominante es el de asalariado, muy por encima del resto de categorías. Le siguen en menor medida “asegurado voluntario” y “trabajador independiente”. Las demás categorías representan proporciones muy pequeñas del total. Esta concentración en la categoría de asalariados indica que el comportamiento global del conjunto de datos estará fuertemente determinado por este grupo, especialmente en variables relacionadas con estabilidad laboral, ingresos y morosidad. También sugiere que los demás tipos de aseguramiento tienen un peso marginal en el análisis comparativo.
+
+**Tercer gráfico**. Cantidad de individuos por sector
+
+```{r, warning=FALSE, message=FALSE}
 #Individuos por sector
 moras %>% 
   ggplot(aes(x = SECTOR)) +
@@ -165,7 +196,12 @@ moras %>%
        x = "Sector",
        y = "Cantidad") +
   theme_minimal()
+```
 
+El sector privado concentra la mayor parte de los individuos, superando ampliamente al sector público. Esto refleja que la base de datos está compuesta en su mayoría por personas vinculadas a empleos privados, lo cual puede estar asociado a variaciones en nivel salarial, formalización laboral o probabilidad de morosidad. El sector público, aunque presente, tiene un peso bastante menor en el total.
+
+**Cuarto gráfico**. Cantidad de individuos por indicador moroso
+```{r, warning=FALSE, message=FALSE}
 #Individuos por indicador moroso
 
 moras %>% 
@@ -180,13 +216,19 @@ moras %>%
   scale_fill_manual(
     values = c("#FADADD", "#C2185B"),
     name   = "Moroso",
-    labels = c("0 = No moroso", "1 = Moroso")
+    labels = c("No moroso", "Moroso")
   ) +
   labs(
     title = "Cantidad de individuos morosos vs no morosos"
   ) +
   theme_void()
+```
 
+La gran mayoría de los individuos no presenta morosidad. El número de personas morosas es considerablemente menor, representando solo una fracción del total. Esta distribución implica que la morosidad es un fenómeno minoritario dentro del conjunto analizado. Sin embargo, su presencia sigue siendo relevante: alrededor de 800–900 casos representan un volumen suficiente para estudiar patrones y posibles factores asociados.
+
+**Quinto gráfico**. Cantidad de individuos por indicador activo
+
+```{r, warning=FALSE, message=FALSE}
 #Individuos por indicador activo
 
 moras %>% 
@@ -201,12 +243,18 @@ moras %>%
   scale_fill_manual(
     values = c("#FFB3C6", "#9B59B6"),
     name   = "Activo",
-    labels = c("0 = Inactivo", "1 = Activo")
+    labels = c("Inactivo", "Activo")
   ) +
   labs(
     title = "Proporción de asegurados activos vs inactivos"
   ) +
   theme_void()
+```
+
+El porcentaje de asegurados activos es prácticamente la totalidad del conjunto de datos. La cantidad de personas inactivas es mínima en comparación. Esto indica que la base está compuesta mayoritariamente por personas con vínculos vigentes o activos dentro del sistema de aseguramiento. Dado que la condición de actividad suele relacionarse con estabilidad laboral o ingreso regular, esta distribución puede influir en las tasas de morosidad observadas.
+
+**Sexto gráfico**. Cantidad de individuos por indicador extranjero.
+```{r, warning=FALSE, message=FALSE}
 
 #Individuos por indicador extrajero
 
@@ -222,17 +270,20 @@ moras %>%
   scale_fill_manual(
     values = c("#F7C6D0", "#E91E63"),
     name   = "Extranjero",
-    labels = c("0 = Nacional", "1 = Extranjero")
+    labels = c("Nacional", "Extranjero")
   ) +
   labs(
     title = "Cantidad de individuos nacionales vs extranjeros"
   ) +
   theme_void()
 ```
+
+La mayoría de los individuos son nacionales, mientras que el grupo de extranjeros representa una proporción mucho menor. Aunque los extranjeros constituyen una minoría, su presencia sigue siendo significativa y puede permitir comparaciones sobre diferencias en morosidad, tipo de aseguramiento o condiciones laborales. Esta composición también refleja la distribución esperada en una población general, donde los nacionales predominan ampliamente.
+
 ## 7. Gráficos de variables categóricas usando porcentajes
 
+**Primer gráfico**. Porcentaje de morosidad por sexo
 ```{r, warning=FALSE, message=FALSE}
-
 #Porcentaje de morosidad por sexo
 moras %>%
   group_by(SEXO) %>%
@@ -247,7 +298,12 @@ moras %>%
     y = "% de personas en estado de morosidad"
   ) +
   theme_minimal()
+```
 
+El porcentaje de morosidad entre hombres y mujeres es muy similar. Aunque los hombres presentan una proporción ligeramente mayor, la diferencia no parece ser sustancial. Esto sugiere que el sexo no es una variable particularmente determinante en la probabilidad de que una persona incurra en morosidad dentro de este conjunto de datos. En términos generales, tanto hombres como mujeres muestran niveles de morosidad comparables.
+
+**Segundo gráfico**. Porcentaje de morosidad por tipo de aseguramiento
+```{r, warning=FALSE, message=FALSE}
 #Porcentaje de morosidad por tipo de aseguramiento
 moras %>%
   group_by(TIPO_ASEGURAMIENTO) %>%
@@ -262,7 +318,48 @@ moras %>%
     y = "Tipo de aseguramiento"
   ) +
   theme_minimal()
+```
 
+Aquí sí se observan diferencias claras. Los trabajadores independientes concentran el porcentaje más alto de morosidad, superando el 40 %. Este resultado es consistente con la inestabilidad o irregularidad que puede caracterizar los ingresos en ese grupo.
+Los asegurados voluntarios también presentan una morosidad relevante, aunque en menor medida.
+En contraste, los asalariados –el grupo más numeroso– muestran un porcentaje de morosidad bajo, posiblemente asociado a la deducción automática de cuotas por planilla. Los pensionados y los asegurados bajo convenios especiales presentan los porcentajes más bajos, lo que indica una mayor estabilidad de pago dentro de esos sectores.
+En conjunto, el tipo de aseguramiento sí aparece como un factor asociado a la morosidad.
+
+**Tercer gráfico**. Porcentaje de morosidad por sector
+```{r, warning=FALSE, message=FALSE}
+#Porcentaje de morosidad por sector
+moras %>%
+  mutate(
+    INDICADOR_MOROSO = factor(INDICADOR_MOROSO, levels = c("NO", "SI"))
+  ) %>%
+  group_by(SECTOR, INDICADOR_MOROSO) %>%
+  summarise(
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(SECTOR) %>%
+  mutate(
+    pct = n / sum(n) * 100
+  ) %>%
+  ggplot(aes(x = SECTOR, y = pct, fill = INDICADOR_MOROSO)) +
+  geom_col() +
+  scale_fill_manual(
+    values = c("NO" = "#FADADD", "SI" = "#C2185B"),
+    name = "Moroso",
+    labels = c("NO" = "No moroso", "SI" = "Moroso")
+  ) +
+  labs(
+    title = "Porcentaje de morosidad por sector",
+    x = "Sector",
+    y = "% de personas en estado de morosidad"
+  ) +
+  theme_minimal()
+```
+
+Los porcentajes de morosidad entre el sector público y privado son relativamente parecidos. El sector privado presenta un porcentaje apenas superior, pero la diferencia es pequeña. Esto indica que, pese a las diferencias en tamaño entre ambos grupos, el nivel de morosidad asociado al tipo de sector no muestra una variación marcada. En términos prácticos, pertenecer al sector público o privado no parece alterar de forma significativa la probabilidad de incurrir en morosidad.
+
+**Cuarto gráfico**. Porcentaje de morosidad por indicador moroso
+```{r, warning=FALSE, message=FALSE}
 #Porcentaje de morosidad por indicador moroso
 moras %>% 
   count(INDICADOR_MOROSO) %>% 
@@ -282,7 +379,13 @@ moras %>%
   ) +
   labs(title = "Porcentaje de morosos vs no morosos") +
   theme_void() 
+```
 
+La gran mayoría de los individuos se encuentra al día, mientras que cerca del 17 % presenta morosidad. Aunque este porcentaje no es dominante, sí representa una fracción importante de la población, lo cual justifica analizar los factores asociados. En general, el comportamiento observado coincide con patrones típicos de bases de aseguramiento, donde la mayoría mantiene sus obligaciones al día, pero existe un grupo no despreciable con dificultades de pago.
+
+**Quinto gráfico**. Porcentaje de morosidad por indicador activo
+
+```{r, warning=FALSE, message=FALSE}
 #Porcentaje de morosidad por indicador activo
 moras %>% 
   count(INDICADOR_ACTIVO) %>% 
@@ -302,7 +405,12 @@ moras %>%
   ) +
   labs(title = "Porcentaje de individuos activos vs inactivos") +
   theme_void()
+```
 
+Prácticamente todas las personas registradas están activas; solo un porcentaje muy pequeño aparece como inactivo. Esto indica que la base está compuesta casi en su totalidad por asegurados con condición vigente. La marcada desproporción sugiere que el estado de actividad no es una variable útil para explicar la morosidad, simplemente porque la cantidad de inactivos es mínima.
+
+**Sexto gráfico**. Porcentaje de morosidad por indicador extranjero
+```{r, warning=FALSE, message=FALSE}
 #Porcentaje de morosidad por indicador extranjero
 moras %>% 
   count(INDICADOR.EXTRANJERO) %>% 
@@ -322,10 +430,16 @@ moras %>%
   ) +
   labs(title = "Porcentaje de nacionales vs extranjeros") +
   theme_void() 
-
 ```
-## 8. 
-```{r}
+
+La morosidad se presenta tanto en nacionales como en extranjeros, pero la proporción es mayor entre los extranjeros. Aunque representan un grupo mucho más pequeño dentro del total, su porcentaje de morosidad supera el 12 %, lo cual es ligeramente más alto que lo observado en nacionales. Esto podría relacionarse con condiciones de empleo, estabilidad migratoria o tipo de aseguramiento, por lo que conviene interpretarlo junto con los otros factores.
+
+## 8. Gráficos para variables numéricas
+
+En este caso, dado que hay muchos valores distintos tanto para la edad como para los salarios, se optó por una alternativa en donde se categorizan las edades y salarios. En el caso se las edades, se tomaron 5 grupos, y en el caso de los salarios se tomaron 4 grupos correspondientes a los cuartiles de la columna de salarios. 
+
+**Primer gráfico**. Porcentaje de morosidad por rangos de salario.
+```{r, warning=FALSE, message=FALSE}
 cuartiles_salario <- quantile(moras$SALARIO,
                               probs = seq(0, 1, 0.25),
                               na.rm = TRUE)
@@ -369,6 +483,18 @@ moras.cat %>%
     y = "% de personas en estado de morosidad / no morosidad"
   ) +
   theme_minimal()
+```
+
+El nivel de morosidad muestra variaciones según la edad, aunque las diferencias no son extremadamente marcadas.
+Los grupos más jóvenes (0–24 y 25–34) presentan los porcentajes más bajos de morosidad, lo que podría relacionarse con el hecho de que muchos apenas ingresan al mercado laboral o aún dependen de otra figura asegurada.
+
+A partir de los 35 años, la morosidad aumenta y alcanza su punto más alto en el grupo de 45–54 años. Este comportamiento coincide con etapas donde las responsabilidades económicas suelen ser mayores, como créditos, vivienda o dependientes económicos, lo que podría traducirse en mayor presión financiera.
+
+En el rango de 55 años o más, la morosidad disminuye nuevamente, posiblemente porque muchas personas ya están en etapas de mayor estabilidad laboral o en transición hacia la pensión.
+En resumen, la morosidad parece crecer con la edad hasta un punto medio y luego reducirse ligeramente en los grupos de mayor edad.
+
+**Segundo gráfico**. Porcentaje de morosidad por cuartil de salarios
+```{r, warning=FALSE, message=FALSE}
 
 #Porcentaje de morosidad por cuartitl de salario
 moras.cat %>%
@@ -394,4 +520,11 @@ moras.cat %>%
   ) +
   theme_minimal()
 ```
+La morosidad varía entre los cuartiles de ingreso, aunque las diferencias son relativamente moderadas.
+El cuartil más bajo (Q1) presenta niveles altos de morosidad, lo cual es consistente con menores ingresos disponibles y mayor vulnerabilidad financiera. El cuartil Q2 también muestra una morosidad elevada, incluso ligeramente superior a Q1, lo que sugiere que los ingresos bajos y medios-bajos pueden enfrentar dificultades parecidas para mantenerse al día.
 
+A medida que los ingresos aumentan (Q3 y especialmente Q4), el porcentaje de morosidad disminuye. El cuartil más alto es el que registra la menor proporción de personas morosas, lo cual concuerda con una mayor estabilidad económica y capacidad de pago.
+
+En conjunto, este patrón refleja una relación razonable entre nivel salarial y morosidad: los grupos con mayores ingresos tienden a presentar mejores condiciones para cumplir sus obligaciones de aseguramiento, mientras que los niveles más bajos concentran las dificultades.
+
+## 10. Árbol de decisión
