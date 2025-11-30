@@ -132,3 +132,101 @@ porc.na.moras
 
 ```
 
+## 6. Gráficos de cantidad de individuos por categoría
+
+```{r}
+library(ggplot2)
+
+#Individuos por sexo
+moras %>% 
+  ggplot(aes(x = SEXO)) +
+  geom_bar(fill = "#FADADD") +
+  labs(title = "Cantidad de individuos por sexo", 
+       x = "Sexo", 
+       y = "Cantidad") +
+    theme_minimal()
+
+#Individuos por tipo de aseguramiento. Para mayor legibilidad, se invirtiron los ejes de manera que se observen bien los nombres del tipo de aseguramiento
+
+moras %>% 
+  ggplot(aes(x = TIPO_ASEGURAMIENTO)) +
+  geom_bar(fill = "#FF9AA2") +
+  coord_flip() +
+  labs(title = "Cantidad por tipo de aseguramiento",
+       x = "Tipo de aseguramiento",
+       y = "Cantidad") +
+  theme_minimal()
+
+#Individuos por sector
+moras %>% 
+  ggplot(aes(x = SECTOR)) +
+  geom_bar(fill = "#C2185B") +
+  labs(title = "Cantidad de individuos por sector",
+       x = "Sector",
+       y = "Cantidad") +
+  theme_minimal()
+
+#Individuos por indicador moroso
+
+moras %>% 
+  count(INDICADOR_MOROSO) %>% 
+  mutate(label = n) %>%
+  ggplot(aes(x = "", y = n, fill = as.factor(INDICADOR_MOROSO))) +
+  geom_col(color = "white") +
+  geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 5) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(
+    values = c("#FADADD", "#C2185B"),
+    name   = "Moroso",
+    labels = c("0 = No moroso", "1 = Moroso")
+  ) +
+  labs(
+    title = "Cantidad de individuos morosos vs no morosos"
+  ) +
+  theme_void()
+
+#Individuos por indicador activo
+
+moras %>% 
+  count(INDICADOR_ACTIVO) %>% 
+  mutate(label = n) %>%
+  ggplot(aes(x = "", y = n, fill = as.factor(INDICADOR_ACTIVO))) +
+  geom_col(color = "white") +
+  geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 5) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(
+    values = c("#FFB3C6", "#9B59B6"),
+    name   = "Activo",
+    labels = c("0 = Inactivo", "1 = Activo")
+  ) +
+  labs(
+    title = "Proporción de asegurados activos vs inactivos"
+  ) +
+  theme_void()
+
+#Individuos por indicador extrajero
+
+moras %>% 
+  count(INDICADOR.EXTRANJERO) %>% 
+  mutate(label = n)%>%
+  ggplot(aes(x = "", y = n, fill = as.factor(INDICADOR.EXTRANJERO))) +
+  geom_col(color = "white") +
+  geom_text(aes(label = label),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 5) +
+  coord_polar(theta = "y") +
+  scale_fill_manual(
+    values = c("#F7C6D0", "#E91E63"),
+    name   = "Extranjero",
+    labels = c("0 = Nacional", "1 = Extranjero")
+  ) +
+  labs(
+    title = "Cantidad de individuos nacionales vs extranjeros"
+  ) +
+  theme_void()
+```
+
