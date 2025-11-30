@@ -66,7 +66,7 @@ str(moras)
 ```
 ## 3. Valores atípicos
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 prom.salario <- mean(moras$SALARIO, na.rm = TRUE)
 desv.salario <- sd(moras$SALARIO, na.rm = TRUE)
 
@@ -86,7 +86,7 @@ moras %>%
 ```
 
 ## 4. Porcentaje de valores faltantes
-```{r}
+```{r, warning=FALSE, message=FALSE}
 porc.na <- data.original %>% 
   summarise(across(everything(), ~ mean(is.na(.))*100))
 
@@ -94,7 +94,7 @@ porc.na
 ```
 
 ## 5. Imputar valores faltantes
-```{r}
+```{r, warning=FALSE, message=FALSE}
 #Para variables numericas
 moras <- moras %>%
   mutate(
@@ -134,7 +134,7 @@ porc.na.moras
 
 ## 6. Gráficos de cantidad de individuos por categoría
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 library(ggplot2)
 
 #Individuos por sexo
@@ -231,7 +231,7 @@ moras %>%
 ```
 ## 7. Gráficos de variables categóricas usando porcentajes
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 
 #Porcentaje de morosidad por sexo
 moras %>%
@@ -323,5 +323,75 @@ moras %>%
   labs(title = "Porcentaje de nacionales vs extranjeros") +
   theme_void() 
 
+```
+## 8. 
+```{r}
+cuartiles_salario <- quantile(moras$SALARIO,
+                              probs = seq(0, 1, 0.25),
+                              na.rm = TRUE)
+
+moras.cat <- moras %>%
+  mutate(
+    rango.edad = cut(
+      EDAD,
+      breaks = c(0, 25, 35, 45, 55, Inf),
+      right  = FALSE,
+      labels = c("0–24", "25–34", "35–44", "45–54", "55+")
+    ),
+    rango.salario = cut(
+      SALARIO,
+      breaks = cuartiles_salario,
+      include.lowest = TRUE,
+      labels = c("Q1", "Q2", "Q3", "Q4")
+    )
+  )
+
+#Porcentaje de morosidad por rangos de salario
+moras.cat %>%
+  group_by(rango.edad, INDICADOR_MOROSO) %>%
+  summarise(
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(rango.edad) %>%
+  mutate(
+    porc = n / sum(n) * 100
+  ) %>%
+  ggplot(aes(x = rango.edad, y = porc, fill = INDICADOR_MOROSO)) +
+  geom_col() +
+  scale_fill_manual(
+    values = c("NO" = "#FADADD", "SI" = "#C2185B"),
+    name   = "Moroso"
+  ) +
+  labs(
+    title = "Porcentaje de morosidad por rango de edad",
+    x = "Rango de edad",
+    y = "% de personas en estado de morosidad / no morosidad"
+  ) +
+  theme_minimal()
+
+#Porcentaje de morosidad por cuartitl de salario
+moras.cat %>%
+  group_by(rango.salario, INDICADOR_MOROSO) %>%
+  summarise(
+    n = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(rango.salario) %>%
+  mutate(
+    porc = n / sum(n) * 100
+  ) %>%
+  ggplot(aes(x = rango.salario, y = porc, fill = INDICADOR_MOROSO)) +
+  geom_col() +
+  scale_fill_manual(
+    values = c("NO" = "#FADADD", "SI" = "#C2185B"),
+    name   = "Moroso"
+  ) +
+  labs(
+    title = "Porcentaje de morosidad por cuartil de salario",
+    x = "Cuartil de salario",
+    y = "% de personas en estado de morosidad / no morosidad"
+  ) +
+  theme_minimal()
 ```
 
